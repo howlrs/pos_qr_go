@@ -1,6 +1,7 @@
 package routes_test
 
 import (
+	"backend/repositories"
 	"backend/routes"
 	"encoding/json"
 	"fmt"
@@ -28,18 +29,27 @@ import (
 //	なし
 func TestSinginAndPrivateRequest(t *testing.T) {
 	godotenv.Load("../.env.local")
+	repositories.LoadConfig()
 
 	params := []map[string]string{
+		// 新規作成
+		// {
+		// 	"name":         "test_signup",
+		// 	"url":          "/api/v1/public/signup",
+		// 	"method":       "POST",
+		// 	"body":         `{"email": "test_signup", "password": "test_signup"}`,
+		// 	"expactStatus": "200",
+		// },
 		{
 			"name":         "test_signin",
 			"url":          "/api/v1/public/signin",
 			"method":       "POST",
-			"body":         `{"email": "test_signin", "password": "test_signin"}`,
+			"body":         `{"email": "test_signup", "password": "test_signup"}`,
 			"expactStatus": "200",
 		},
 		{
 			"name":         "test_private_health",
-			"url":          "/api/v1/private/health",
+			"url":          "/api/v1/private/manager/health",
 			"method":       "GET",
 			"body":         "",
 			"expactStatus": "200",
@@ -83,7 +93,16 @@ func TestSinginAndPrivateRequest(t *testing.T) {
 
 		// status code
 		if param["expactStatus"] != "" {
-			assert.Equal(t, param["expactStatus"], fmt.Sprintf("%v", rec.Code), param["name"])
+			// messageを取得
+			message, ok := result["message"].(string)
+			assert.True(t, ok)
+
+			err, ok := result["error"].(string)
+			if ok && err != "" {
+				t.Errorf("error should be empty, but got %s", err)
+			}
+
+			assert.Equal(t, param["expactStatus"], fmt.Sprintf("%v", rec.Code), fmt.Sprintf("%s status code should be %s, but got %d, message: %s", param["name"], param["expactStatus"], rec.Code, message))
 		}
 	}
 }

@@ -31,10 +31,10 @@ func (p *Client) StartSession(c echo.Context) error {
 	// クエリパラメータから有効期限を取得
 	// 設定がなければ、デフォルトで1時間後に設定
 	expiredAt := time.Now().UTC().Add(1 * time.Hour) // デフォルトの有効期限
-	exp := c.Get("exp").(int64)
-	// 設定値があれば設定値を代入
-	if exp > 0 {
-		expiredAt = time.Unix(exp, 0).UTC() // クエリパラメータから取得した有効期限を使用
+	if expValue := c.Get("exp"); expValue != nil {
+		if exp, ok := expValue.(int64); ok && exp > 0 {
+			expiredAt = time.Unix(exp, 0).UTC() // クエリパラメータから取得した有効期限を使用
+		}
 	}
 
 	// セッションJWT発行用の構造体を生成

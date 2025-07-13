@@ -17,7 +17,6 @@ type Claims struct {
 
 func NewClaims(manager *Manager, isAdmin bool, exp time.Time) *Claims {
 	return &Claims{
-		Name:  manager.ID,
 		Email: manager.Email,
 		Admin: isAdmin,
 		RegisteredClaims: jwt.RegisteredClaims{

@@ -6,10 +6,19 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rs/xid"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
+
+type RequestManager struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (m *RequestManager) IsValidate() error {
+	if m.Email == "" || m.Password == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Email and Password are required")
+	}
+	return nil
+}
 
 // Signup は新しいマネージャーアカウントを作成するためのハンドラです。
 // リクエストボディからマネージャー情報をバインドし、パスワードをハッシュ化した上で
@@ -26,25 +35,20 @@ import (
 //	       既存IDの場合は409 Conflictを返します。
 func (p *Client) Signup(c echo.Context) error {
 	// リクエストのバインド
-	manager := &models.Manager{}
+	manager := &RequestManager{}
 	if err := c.Bind(manager); err != nil {
 		return responseHandler(c, http.StatusBadRequest, nil, err, "Failed to bind request")
 	}
 
-	// パスワードのハッシュ化
-	if err := manager.ToEncryptPassword(); err != nil {
-		return responseHandler(c, http.StatusInternalServerError, nil, err, "Failed to encrypt password")
+	// 入力値の検証
+	if err := manager.IsValidate(); err != nil {
+		return responseHandler(c, http.StatusBadRequest, nil, err, "Failed to validate request")
 	}
 
-	// set database
-	manager.ID = xid.New().String()
-	if _, err := p.firestore.Collection(manager.ToCollection(p.IsTest())).Doc(manager.ID).Set(c.Request().Context(), manager); err != nil {
-		// すでにKeyが存在する場合はエラーを返す
-		if status.Code(err) == codes.AlreadyExists {
-			return responseHandler(c, http.StatusConflict, nil, err, "Failed to set manager, already exists")
-		}
-
-		return responseHandler(c, http.StatusInternalServerError, nil, err, "Failed to set manager")
+	// データベースへ保存
+	// - パスワードのハッシュ化
+	if err := p.uc.ManagerSignUp(c.Request().Context(), manager.Email, manager.Email); err != nil {
+		return responseHandler(c, http.StatusBadRequest, nil, err, "Failed to sign up manager")
 	}
 
 	return responseHandler(c, http.StatusOK, manager, nil, "success, create manager")
@@ -65,53 +69,42 @@ func (p *Client) Signup(c echo.Context) error {
 //   - テストモードの場合はテスト用のマネージャ情報を使用します。
 //   - パスワードはレスポンスに含めません。
 func (p *Client) Signin(c echo.Context) error {
-	manager := &models.Manager{}
-	dbManager := &models.Manager{}
+	manager := &RequestManager{}
 	if !p.IsTest() {
 		// リクエストのバインド
 		if err := c.Bind(manager); err != nil {
 			return responseHandler(c, http.StatusBadRequest, nil, err, "Failed to bind request")
 		}
-		if manager.Email == "" || manager.Password == "" {
-			return responseHandler(c, http.StatusBadRequest, nil, nil, "Failed to bind request")
+		if err := manager.IsValidate(); err != nil {
+			return responseHandler(c, http.StatusBadRequest, nil, err, "Failed to validate request")
 		}
 
 		// read database
 		// KeyはEmailを想定
-		doc, err := p.firestore.Collection(manager.ToCollection(p.IsTest())).Doc(manager.Email).Get(c.Request().Context())
-		if err != nil {
-			if status.Code(err) == codes.NotFound {
-				return responseHandler(c, http.StatusNotFound, nil, err, "Failed to get manager, not exists")
-			}
-
-			return responseHandler(c, http.StatusInternalServerError, nil, err, "Failed to get manager")
-		}
-
-		if err := doc.DataTo(dbManager); err != nil {
-			return responseHandler(c, http.StatusInternalServerError, nil, err, "Failed to get manager")
-		}
-
-		// パスワードの検証
-		if err := dbManager.IsVerifyPassword(manager.Password); err != nil {
-			return responseHandler(c, http.StatusUnauthorized, nil, err, "Failed to verify password")
+		if err := p.uc.ManagerSignIn(c.Request().Context(), manager.Email, manager.Password); err != nil {
+			return responseHandler(c, http.StatusInternalServerError, nil, err, "Failed to sign in manager")
 		}
 
 		// [Important] パスワードは返さない
-		dbManager.Password = ""
+		manager.Password = ""
 	} else {
 		// テスト用のユーザ情報を設定
-		dbManager = &models.Manager{
-			ID:       "test",
+		manager = &RequestManager{
 			Email:    "",
-			Password: "test",
+			Password: "",
 		}
+	}
+
+	setManager := &models.Manager{
+		Email:    manager.Email,
+		Password: manager.Password,
 	}
 
 	// 期限を指定し
 	// ユーザ情報からJWTトークンを生成
 	expireAt := time.Now().Add(time.Hour * 24 * 7)
 	isAdmin := false
-	token, err := models.NewClaims(dbManager, isAdmin, expireAt).ToJwtToken()
+	token, err := models.NewClaims(setManager, isAdmin, expireAt).ToJwtToken()
 	if err != nil {
 		return responseHandler(c, http.StatusInternalServerError, nil, err, "Failed to create token")
 	}
@@ -128,6 +121,6 @@ func (p *Client) Signin(c echo.Context) error {
 	return responseHandler(c, http.StatusOK, echo.Map{
 		"token":      token,
 		"token_type": "bearer",
-		"manager":    dbManager,
+		"manager":    manager,
 	}, nil, "success, create jwt token")
 }

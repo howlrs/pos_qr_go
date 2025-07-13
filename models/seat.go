@@ -15,10 +15,10 @@ const UserSeatPrefix = "seat_" // 実際のプレフィックス文字列に置�
 
 // Seat は座席エンティティを表します。
 type Seat struct {
-	ID        string    `json:"id" db:"id" firestore:"id"`
-	Name      string    `json:"name" db:"name" firestore:"name"`
-	CreatedAt time.Time `json:"created_at" db:"created_at" firestore:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at" firestore:"updated_at"`
+	ID        string
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // NewSeat は新しいSeatインスタンスを作成します。

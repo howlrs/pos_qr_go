@@ -10,12 +10,12 @@ const OrderPrefix = "order_" // 実際のプレフィックス文字列に置き
 // Order は注文内の個々の商品を表します。
 // この構造体は外部で定義されていることを想定しています。
 type Order struct {
-	OrderID   string    `json:"order_id" db:"order_id" firestore:"order_id"`
-	ProductID string    `json:"product_id" db:"product_id" firestore:"product_id"`
-	Quantity  int       `json:"quantity" db:"quantity" firestore:"quantity"`
-	Price     float64   `json:"price" db:"price" firestore:"price"`
-	CreatedAt time.Time `json:"created_at" db:"created_at" firestore:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at" firestore:"updated_at"`
+	OrderID   string
+	ProductID string
+	Quantity  int
+	Price     float64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // NewOrder は新しい注文アイテムを作成します。

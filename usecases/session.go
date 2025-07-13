@@ -30,11 +30,5 @@ func NewSession(storeID, seatID string, expiredAt time.Time) *Session {
 // CreateJWT はセッション情報からJWTトークンを生成します。
 // 戻り値: JWTトークン文字列、エラー
 func (r *Session) CreateJWT() (string, error) {
-	claims := models.NewSessionClaims(r.Store, r.Seat, r.ExpiredAt)
-	token, err := claims.ToJwtToken()
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
+	return models.NewSessionClaims(r.Store, r.Seat, r.ExpiredAt).ToJwtToken()
 }

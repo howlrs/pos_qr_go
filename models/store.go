@@ -6,18 +6,18 @@ import (
 	"time"
 )
 
-const StorePrefix = "store"
+const StorePrefix = "store_"
 
 // Store はストアエンティティを表します
 type Store struct {
-	ID        string    `json:"id" db:"id" firestore:"id"`
-	Name      string    `json:"name" db:"name" firestore:"name"`
-	Email     string    `json:"email" db:"email" firestore:"email"`
-	Password  string    `json:"password" db:"password" firestore:"password"`
-	Address   string    `json:"address" db:"address" firestore:"address"`
-	Phone     string    `json:"phone" db:"phone" firestore:"phone"`
-	CreatedAt time.Time `json:"created_at" db:"created_at" firestore:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at" firestore:"updated_at"`
+	ID        string
+	Name      string
+	Email     string
+	Password  string
+	Address   string
+	Phone     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // NewStore は新しいStoreインスタンスを作成します

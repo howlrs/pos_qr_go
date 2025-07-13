@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"time"
 
 	"backend/models"
 
@@ -22,9 +23,39 @@ func NewSeatRepository(client *firestore.Client) *SeatRepository {
 	}
 }
 
+type Seat struct {
+	ID        string    `firestore:"id"`
+	Name      string    `firestore:"name"`
+	CreatedAt time.Time `firestore:"created_at"`
+	UpdatedAt time.Time `firestore:"updated_at"`
+}
+
+func ToSetSeat(seat *models.Seat) *Seat {
+	return &Seat{
+		ID:        seat.ID,
+		Name:      seat.Name,
+		CreatedAt: seat.CreatedAt,
+		UpdatedAt: seat.UpdatedAt,
+	}
+}
+
+func (s *Seat) ToUpdate() *Seat {
+	s.UpdatedAt = time.Now()
+	return s
+}
+
+func (s *Seat) ToModel() *models.Seat {
+	return &models.Seat{
+		ID:        s.ID,
+		Name:      s.Name,
+		CreatedAt: s.CreatedAt,
+		UpdatedAt: s.UpdatedAt,
+	}
+}
+
 // Create は新しい座席を Firestore に作成します。
 func (r *SeatRepository) Create(ctx context.Context, seat *models.Seat) error {
-	_, err := r.client.Collection(GetCollectionName(r.collection)).Doc(seat.ID).Set(ctx, seat)
+	_, err := r.client.Collection(GetCollectionName(r.collection)).Doc(seat.ID).Set(ctx, ToSetSeat(seat))
 	return err
 }
 
@@ -35,14 +66,19 @@ func (r *SeatRepository) Read(ctx context.Context) ([]*models.Seat, error) {
 		return nil, err
 	}
 
-	var seats []*models.Seat
-	for _, doc := range docs {
-		var seat models.Seat
-		if err := doc.DataTo(&seat); err != nil {
+	if len(docs) == 0 {
+		return []*models.Seat{}, nil // ドキュメントが存在しない場合は空のスライスを返す
+	}
+
+	seats := make([]*models.Seat, 0, len(docs))
+	for i, doc := range docs {
+		seat := &Seat{}
+		if err := doc.DataTo(seat); err != nil {
 			return nil, err
 		}
-		seats = append(seats, &seat)
+		seats[i] = seat.ToModel()
 	}
+
 	return seats, nil
 }
 
@@ -53,11 +89,12 @@ func (r *SeatRepository) FindByID(ctx context.Context, id string) (*models.Seat,
 		return nil, err
 	}
 
-	var seat models.Seat
-	if err := doc.DataTo(&seat); err != nil {
+	seat := &Seat{}
+	if err := doc.DataTo(seat); err != nil {
 		return nil, err
 	}
-	return &seat, nil
+
+	return seat.ToModel(), nil
 }
 
 // FindByField は指定されたフィールドと値に一致する座席情報を Firestore から検索します。
@@ -67,20 +104,25 @@ func (r *SeatRepository) FindByField(ctx context.Context, field string, value an
 		return nil, err
 	}
 
-	var seats []*models.Seat
-	for _, doc := range docs {
-		var seat models.Seat
-		if err := doc.DataTo(&seat); err != nil {
+	if len(docs) == 0 {
+		return []*models.Seat{}, nil // ドキュメントが存在しない場合は空のスライスを返す
+	}
+
+	seats := make([]*models.Seat, len(docs))
+	for i, doc := range docs {
+		seat := &Seat{}
+		if err := doc.DataTo(seat); err != nil {
 			return nil, err
 		}
-		seats = append(seats, &seat)
+		seats[i] = seat.ToModel()
 	}
+
 	return seats, nil
 }
 
 // UpdateByID は指定されたIDの座席情報を Firestore で更新します。
 func (r *SeatRepository) UpdateByID(ctx context.Context, id string, seat *models.Seat) error {
-	_, err := r.client.Collection(GetCollectionName(r.collection)).Doc(id).Set(ctx, seat)
+	_, err := r.client.Collection(GetCollectionName(r.collection)).Doc(id).Set(ctx, ToSetSeat(seat))
 	return err
 }
 

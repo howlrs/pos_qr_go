@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/models"
+	"backend/usecases"
 	"context"
 	"fmt"
 	"net/http"
@@ -15,8 +16,8 @@ import (
 )
 
 type Client struct {
-	isTest    bool
-	firestore *firestore.Client
+	isTest bool
+	uc     *usecases.UseCase
 }
 
 func NewClient(isTest bool) *Client {
@@ -28,8 +29,8 @@ func NewClient(isTest bool) *Client {
 	}
 
 	return &Client{
-		isTest:    isTest,
-		firestore: db,
+		isTest: isTest,
+		uc:     usecases.New(db),
 	}
 }
 
@@ -127,6 +128,8 @@ func (p *Client) handleManager(private *echo.Group, key string) {
 	manager.GET("/store", p.GetAllStores)
 	// - 店舗情報を登録
 	manager.POST("/store", p.RegisterStore)
+	// - QRコードを発行
+	manager.GET("/store/qr", p.IssueSeatQRForStore)
 
 }
 

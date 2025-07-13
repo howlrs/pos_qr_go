@@ -27,7 +27,7 @@ func NewManagerRepository(client *firestore.Client) Repository[models.Manager] {
 
 // Create は新しい管理者ドキュメントを Firestore に作成します。
 func (r *ManagerRepository) Create(ctx context.Context, manager *models.Manager) error {
-	_, err := r.client.Collection(GetCollectionName(r.collection)).Doc(manager.ID).Set(ctx, manager)
+	_, err := r.client.Collection(GetCollectionName(r.collection)).Doc(manager.Email).Set(ctx, manager)
 	return err
 }
 
@@ -38,14 +38,19 @@ func (r *ManagerRepository) Read(ctx context.Context) ([]*models.Manager, error)
 		return nil, err
 	}
 
-	var managers []*models.Manager
-	for _, doc := range docs {
-		var manager models.Manager
-		if err := doc.DataTo(&manager); err != nil {
+	if len(docs) == 0 {
+		return []*models.Manager{}, nil // ドキュメントが存在しない場合は空のスライスを返す
+	}
+
+	managers := make([]*models.Manager, len(docs))
+	for i, doc := range docs {
+		manager := &models.Manager{}
+		if err := doc.DataTo(manager); err != nil {
 			return nil, err
 		}
-		managers = append(managers, &manager)
+		managers[i] = manager
 	}
+
 	return managers, nil
 }
 
@@ -56,11 +61,12 @@ func (r *ManagerRepository) FindByID(ctx context.Context, id string) (*models.Ma
 		return nil, err
 	}
 
-	var manager models.Manager
-	if err := doc.DataTo(&manager); err != nil {
+	manager := &models.Manager{}
+	if err := doc.DataTo(manager); err != nil {
 		return nil, err
 	}
-	return &manager, nil
+
+	return manager, nil
 }
 
 // FindByField は指定されたフィールドと値に一致する管理者ドキュメントを Firestore から検索します。
@@ -70,14 +76,19 @@ func (r *ManagerRepository) FindByField(ctx context.Context, field string, value
 		return nil, err
 	}
 
-	var managers []*models.Manager
-	for _, doc := range docs {
-		var manager models.Manager
-		if err := doc.DataTo(&manager); err != nil {
+	if len(docs) == 0 {
+		return []*models.Manager{}, nil // ドキュメントが存在しない場合は空のスライスを返す
+	}
+
+	managers := make([]*models.Manager, len(docs))
+	for i, doc := range docs {
+		manager := &models.Manager{}
+		if err := doc.DataTo(manager); err != nil {
 			return nil, err
 		}
-		managers = append(managers, &manager)
+		managers[i] = manager
 	}
+
 	return managers, nil
 }
 

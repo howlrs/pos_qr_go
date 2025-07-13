@@ -42,18 +42,18 @@ func (e *InvalidStatusTransitionError) Error() string {
 // Session は注文のモデルを表す構造体です。
 // 注文は、店舗、ユーザー席、商品、合計金額、ステータスなどの情報を含みます。
 type Session struct {
-	ID          string  `json:"id" db:"id" firestore:"id"`
-	StoreID     string  `json:"store_id" db:"store_id" firestore:"store_id"`
-	SeatID      string  `json:"seat_id" db:"seat_id" firestore:"seat_id"`
-	Items       []Order `json:"items" db:"items" firestore:"items"`
-	TotalAmount float64 `json:"total_amount" db:"total_amount" firestore:"total_amount"`
-	Status      Status  `json:"status" db:"status" firestore:"status"`
+	ID          string
+	StoreID     string
+	SeatID      string
+	Items       []Order
+	TotalAmount float64
+	Status      Status
 
-	ExpiresAt time.Time `json:"expires_at" db:"expires_at" firestore:"expires_at"`
-	IssuedAt  time.Time `json:"issued_at" db:"issued_at" firestore:"issued_at"`
+	ExpiresAt time.Time
+	IssuedAt  time.Time
 
-	CreatedAt time.Time `json:"created_at" db:"created_at" firestore:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at" firestore:"updated_at"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // NewSession は新しい注文を作成するコンストラクタです。

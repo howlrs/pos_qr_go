@@ -4,23 +4,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const (
-	COLLECTION_USER = "users"
-)
-
 // Manager は管理者ユーザーを表す構造体です。
 type Manager struct {
-	ID       string `json:"id" db:"id" firestore:"id"`
-	Email    string `json:"email" db:"email" firestore:"email"`
-	Password string `json:"password" db:"password" firestore:"password"`
+	Email    string
+	Password string
 }
 
-// ToCollection はユーザーマネージャーのコレクション名を返します。
-func (u *Manager) ToCollection(isTest bool) string {
-	if isTest {
-		return "test_" + COLLECTION_USER
+func NewManager(email, password string) *Manager {
+	return &Manager{
+		Email:    email,
+		Password: password,
 	}
-	return COLLECTION_USER
 }
 
 // パスワードのハッシュ化
