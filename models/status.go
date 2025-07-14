@@ -42,9 +42,13 @@ const (
 func (s Status) IsFinal() bool {
 	switch s {
 	case StatusCompleted, StatusCancelled, StatusDeclined, StatusRefunded,
-		StatusPartiallyRefunded, StatusFailed, StatusPaymentFailed,
-		StatusDelivered, StatusServed, StatusPickedUp: // PickedUpも最終状態と見なすことが多い
+		StatusFailed, StatusPaymentFailed:
+		// 配達を外部に委託する場合
+		// StatusDelivered, StatusServed, StatusPickedUp: // PickedUpも最終状態と見なすことが多い
 		return true
+	case StatusPartiallyRefunded:
+		// 部分返金は限定的な遷移が可能なため、完全には最終状態ではない
+		return false
 	default:
 		return false
 	}
@@ -74,7 +78,8 @@ func (s Status) CanAddItem() bool {
 // 通常、調理開始後や配送準備後はキャンセル不可とされます。
 func (s Status) CanCancel() bool {
 	switch s {
-	case StatusCreated, StatusPendingPayment, StatusPendingConfirmation, StatusConfirmed, StatusOnHold:
+	case StatusCreated, StatusPendingPayment, StatusPendingConfirmation, StatusPreparing, StatusConfirmed, StatusOnHold,
+		StatusReadyForPickup, StatusReadyForDelivery:
 		return true
 	default:
 		return false
@@ -105,6 +110,11 @@ func (s Status) IsInPreparation() bool {
 // このメソッドはビジネスロジックの核となる部分です。
 func (s Status) CanTransitionTo(newStatus Status) bool {
 	switch s {
+	case StatusCompleted, StatusCancelled, StatusDeclined, StatusRefunded:
+		return false // 最終状態からは遷移不可
+	case StatusPartiallyRefunded:
+		// 部分返金からは限定的な遷移を許可
+		return newStatus == StatusRefunded || newStatus == StatusCompleted || newStatus == StatusCancelled
 	case StatusCreated:
 		return newStatus == StatusPendingPayment || newStatus == StatusConfirmed || newStatus == StatusCancelled || newStatus == StatusDeclined
 	case StatusPendingPayment:
@@ -131,12 +141,9 @@ func (s Status) CanTransitionTo(newStatus Status) bool {
 		return newStatus == StatusCompleted || newStatus == StatusRefunded || newStatus == StatusPartiallyRefunded
 	case StatusPaymentFailed:
 		return newStatus == StatusCancelled
-	case StatusPartiallyRefunded:
-		return newStatus == StatusRefunded || newStatus == StatusCompleted
 	case StatusFailed:
 		return newStatus == StatusCancelled
-	case StatusCompleted, StatusCancelled, StatusDeclined, StatusRefunded:
-		return false // 最終状態からは遷移不可
+
 	default:
 		return false
 	}

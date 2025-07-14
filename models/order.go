@@ -20,7 +20,7 @@ type Order struct {
 
 // NewOrder は新しい注文アイテムを作成します。
 func NewOrder(productID string, quantity int, price float64) *Order {
-	uid := GenerateUniqueID(UserSeatPrefix)
+	uid := GenerateUniqueID(OrderPrefix)
 	now := time.Now().UTC()
 	return &Order{
 		OrderID:   uid,

@@ -15,6 +15,8 @@ import (
 func HashPassword(password string) (string, error) {
 	if len(password) < 8 {
 		return "", fmt.Errorf("password must be at least 8 characters long")
+	} else if len(password) > 72 {
+		return "", fmt.Errorf("password must be at most 72 characters long")
 	}
 
 	// bcryptのコストパラメータを設定します。

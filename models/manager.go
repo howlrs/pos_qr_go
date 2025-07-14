@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,6 +21,11 @@ func NewManager(email, password string) *Manager {
 
 // パスワードのハッシュ化
 func (u *Manager) ToEncryptPassword() error {
+	// bcryptは最大72バイトまでしか処理しないため、長すぎるパスワードをチェック
+	if len([]byte(u.Password)) > 72 {
+		return fmt.Errorf("password is too long: bcrypt only processes the first 72 bytes, current password has %d bytes", len([]byte(u.Password)))
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err

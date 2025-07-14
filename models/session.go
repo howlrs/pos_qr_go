@@ -122,6 +122,14 @@ func (s *Session) UpdateStatus(newStatus Status) error {
 	return nil
 }
 
+// ExceptionUpdateStatus は注文のステータスを更新します。
+// ステータスが最終状態でも更新可能です。
+func (s *Session) ExceptionUpdateStatus(newStatus Status) error {
+	s.Status = newStatus
+	s.setUpdatedAt()
+	return nil
+}
+
 // RecalculateTotalAmount は注文の合計金額を、現在のアイテムリストに基づいて再計算します。
 func (s *Session) RecalculateTotalAmount() {
 	var total float64
@@ -206,10 +214,13 @@ func (s *Session) MarkRefundFully() error {
 }
 
 // MarkRefundPartially は注文を部分返金済みにします。
+// ステータスは `PartiallyRefunded` に更新されます。
+// 完了状態でも返金処理が可能です。
 func (s *Session) MarkRefundPartially(amount float64) error {
 	if amount > s.TotalAmount {
 		return ErrRefundAmountExceedsTotal
 	}
 	// ここに実際の返金処理（金額の記録など）を実装
-	return s.UpdateStatus(StatusPartiallyRefunded)
+	// 関数を通すと完了後のステータス変更ができないため、例外処理
+	return s.ExceptionUpdateStatus(StatusPartiallyRefunded)
 }
