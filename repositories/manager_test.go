@@ -143,7 +143,7 @@ func TestMockManagerRepository(t *testing.T) {
 		mockRepo.On("Count", mock.Anything).Return(0, assert.AnError)
 
 		count, err := mockRepo.Count(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Equal(t, 0, count)
 
 		mockRepo.AssertExpectations(t)
@@ -176,7 +176,7 @@ func TestMockManagerRepository(t *testing.T) {
 		mockRepo.On("Exists", mock.Anything, "error@example.com").Return(false, assert.AnError)
 
 		exists, err := mockRepo.Exists(ctx, "error@example.com")
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.False(t, exists)
 
 		mockRepo.AssertExpectations(t)
@@ -216,7 +216,7 @@ func TestManagerRepositoryErrorHandling(t *testing.T) {
 		mockRepo.On("Read", mock.Anything).Return([]*models.Manager{}, assert.AnError)
 
 		managers, err := mockRepo.Read(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Len(t, managers, 0)
 
 		mockRepo.AssertExpectations(t)

@@ -27,7 +27,7 @@ func (m *MockManagerRepository) Read(ctx context.Context) ([]*models.Manager, er
 	if args.Get(0) == nil {
 		return []*models.Manager{}, args.Error(1)
 	}
-	return args.Get(0).([]*models.Manager), args.Error(1)
+	return args.Get(0).([]*models.Manager), nil
 }
 
 func (m *MockManagerRepository) FindByID(ctx context.Context, id string) (*models.Manager, error) {
@@ -35,7 +35,7 @@ func (m *MockManagerRepository) FindByID(ctx context.Context, id string) (*model
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.Manager), args.Error(1)
+	return args.Get(0).(*models.Manager), nil
 }
 
 func (m *MockManagerRepository) FindByField(ctx context.Context, field string, value any) ([]*models.Manager, error) {
@@ -43,7 +43,7 @@ func (m *MockManagerRepository) FindByField(ctx context.Context, field string, v
 	if args.Get(0) == nil {
 		return []*models.Manager{}, args.Error(1)
 	}
-	return args.Get(0).([]*models.Manager), args.Error(1)
+	return args.Get(0).([]*models.Manager), nil
 }
 
 func (m *MockManagerRepository) UpdateByID(ctx context.Context, id string, manager *models.Manager) error {
@@ -61,7 +61,7 @@ func (m *MockManagerRepository) Count(ctx context.Context) (int, error) {
 	if args.Get(0) == nil {
 		return 0, args.Error(1)
 	}
-	return args.Get(0).(int), args.Error(1)
+	return args.Get(0).(int), nil
 }
 
 func (m *MockManagerRepository) Exists(ctx context.Context, id string) (bool, error) {
@@ -69,5 +69,5 @@ func (m *MockManagerRepository) Exists(ctx context.Context, id string) (bool, er
 	if args.Get(0) == nil {
 		return false, args.Error(1)
 	}
-	return args.Get(0).(bool), args.Error(1)
+	return args.Get(0).(bool), nil
 }

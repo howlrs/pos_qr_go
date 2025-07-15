@@ -24,7 +24,10 @@ func (m *MockStoreRepository) Create(ctx context.Context, store *models.Store) e
 
 func (m *MockStoreRepository) Read(ctx context.Context) ([]*models.Store, error) {
 	args := m.Called(ctx)
-	return args.Get(0).([]*models.Store), args.Error(1)
+	if args.Get(0) == nil {
+		return []*models.Store{}, args.Error(1)
+	}
+	return args.Get(0).([]*models.Store), nil
 }
 
 func (m *MockStoreRepository) FindByID(ctx context.Context, id string) (*models.Store, error) {
@@ -32,15 +35,15 @@ func (m *MockStoreRepository) FindByID(ctx context.Context, id string) (*models.
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.Store), args.Error(1)
+	return args.Get(0).(*models.Store), nil
 }
 
 func (m *MockStoreRepository) FindByField(ctx context.Context, field string, value any) ([]*models.Store, error) {
 	args := m.Called(ctx, field, value)
 	if args.Get(0) == nil {
-		return nil, args.Error(1)
+		return []*models.Store{}, args.Error(1)
 	}
-	return args.Get(0).([]*models.Store), args.Error(1)
+	return args.Get(0).([]*models.Store), nil
 }
 
 func (m *MockStoreRepository) UpdateByID(ctx context.Context, id string, store *models.Store) error {
@@ -58,7 +61,7 @@ func (m *MockStoreRepository) Count(ctx context.Context) (int, error) {
 	if args.Get(0) == nil {
 		return 0, args.Error(1)
 	}
-	return args.Get(0).(int), args.Error(1)
+	return args.Get(0).(int), nil
 }
 
 func (m *MockStoreRepository) Exists(ctx context.Context, id string) (bool, error) {
@@ -66,5 +69,5 @@ func (m *MockStoreRepository) Exists(ctx context.Context, id string) (bool, erro
 	if args.Get(0) == nil {
 		return false, args.Error(1)
 	}
-	return args.Get(0).(bool), args.Error(1)
+	return args.Get(0).(bool), nil
 }

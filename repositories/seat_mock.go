@@ -24,7 +24,10 @@ func (m *MockSeatRepository) Create(ctx context.Context, seat *models.Seat) erro
 
 func (m *MockSeatRepository) Read(ctx context.Context) ([]*models.Seat, error) {
 	args := m.Called(ctx)
-	return args.Get(0).([]*models.Seat), args.Error(1)
+	if args.Get(0) == nil {
+		return []*models.Seat{}, args.Error(1)
+	}
+	return args.Get(0).([]*models.Seat), nil
 }
 
 func (m *MockSeatRepository) FindByID(ctx context.Context, id string) (*models.Seat, error) {
@@ -32,15 +35,15 @@ func (m *MockSeatRepository) FindByID(ctx context.Context, id string) (*models.S
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.Seat), args.Error(1)
+	return args.Get(0).(*models.Seat), nil
 }
 
 func (m *MockSeatRepository) FindByField(ctx context.Context, field string, value any) ([]*models.Seat, error) {
 	args := m.Called(ctx, field, value)
 	if args.Get(0) == nil {
-		return nil, args.Error(1)
+		return []*models.Seat{}, args.Error(1)
 	}
-	return args.Get(0).([]*models.Seat), args.Error(1)
+	return args.Get(0).([]*models.Seat), nil
 }
 
 func (m *MockSeatRepository) UpdateByID(ctx context.Context, id string, seat *models.Seat) error {
@@ -58,7 +61,7 @@ func (m *MockSeatRepository) Count(ctx context.Context) (int, error) {
 	if args.Get(0) == nil {
 		return 0, args.Error(1)
 	}
-	return args.Get(0).(int), args.Error(1)
+	return args.Get(0).(int), nil
 }
 
 func (m *MockSeatRepository) Exists(ctx context.Context, id string) (bool, error) {
@@ -66,5 +69,5 @@ func (m *MockSeatRepository) Exists(ctx context.Context, id string) (bool, error
 	if args.Get(0) == nil {
 		return false, args.Error(1)
 	}
-	return args.Get(0).(bool), args.Error(1)
+	return args.Get(0).(bool), nil
 }

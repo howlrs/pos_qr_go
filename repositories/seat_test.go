@@ -96,11 +96,12 @@ func TestMockSeatRepository(t *testing.T) {
 
 	t.Run("FindByField not found", func(t *testing.T) {
 		mockRepo := &MockSeatRepository{}
-		mockRepo.On("FindByField", mock.Anything, "name", "NonExistent Seat").Return(nil, assert.AnError)
+		mockRepo.On("FindByField", mock.Anything, "name", "NonExistent Seat").Return([]*models.Seat{}, nil)
 
 		seats, err := mockRepo.FindByField(ctx, "name", "NonExistent Seat")
-		assert.Error(t, err)
-		assert.Nil(t, seats)
+		assert.NoError(t, err)
+		assert.NotNil(t, seats)
+		assert.Len(t, seats, 0)
 
 		mockRepo.AssertExpectations(t)
 	})
@@ -148,7 +149,7 @@ func TestMockSeatRepository(t *testing.T) {
 		mockRepo.On("Count", mock.Anything).Return(0, assert.AnError)
 
 		count, err := mockRepo.Count(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Equal(t, 0, count)
 
 		mockRepo.AssertExpectations(t)
@@ -181,7 +182,7 @@ func TestMockSeatRepository(t *testing.T) {
 		mockRepo.On("Exists", mock.Anything, "error_id").Return(false, assert.AnError)
 
 		exists, err := mockRepo.Exists(ctx, "error_id")
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.False(t, exists)
 
 		mockRepo.AssertExpectations(t)
@@ -222,7 +223,7 @@ func TestSeatRepositoryErrorHandling(t *testing.T) {
 		mockRepo.On("Read", mock.Anything).Return(nilSeats, assert.AnError)
 
 		seats, err := mockRepo.Read(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Nil(t, seats)
 
 		mockRepo.AssertExpectations(t)

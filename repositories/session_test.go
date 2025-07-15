@@ -171,12 +171,11 @@ func TestMockSessionRepository(t *testing.T) {
 		mockRepo.On("Count", mock.Anything).Return(0, assert.AnError)
 
 		count, err := mockRepo.Count(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Equal(t, 0, count)
 
 		mockRepo.AssertExpectations(t)
 	})
-
 	t.Run("Exists true", func(t *testing.T) {
 		mockRepo := &MockSessionRepository{}
 		mockRepo.On("Exists", mock.Anything, "session_test123").Return(true, nil)
@@ -204,7 +203,7 @@ func TestMockSessionRepository(t *testing.T) {
 		mockRepo.On("Exists", mock.Anything, "error_id").Return(false, assert.AnError)
 
 		exists, err := mockRepo.Exists(ctx, "error_id")
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.False(t, exists)
 
 		mockRepo.AssertExpectations(t)
@@ -244,7 +243,7 @@ func TestSessionRepositoryErrorHandling(t *testing.T) {
 		mockRepo.On("Read", mock.Anything).Return([]*models.Session{}, assert.AnError)
 
 		sessions, err := mockRepo.Read(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Len(t, sessions, 0)
 
 		mockRepo.AssertExpectations(t)

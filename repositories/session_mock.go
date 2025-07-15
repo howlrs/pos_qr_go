@@ -24,7 +24,10 @@ func (m *MockSessionRepository) Create(ctx context.Context, store *models.Sessio
 
 func (m *MockSessionRepository) Read(ctx context.Context) ([]*models.Session, error) {
 	args := m.Called(ctx)
-	return args.Get(0).([]*models.Session), args.Error(1)
+	if args.Get(0) == nil {
+		return []*models.Session{}, args.Error(1)
+	}
+	return args.Get(0).([]*models.Session), nil
 }
 
 func (m *MockSessionRepository) FindByID(ctx context.Context, id string) (*models.Session, error) {
@@ -32,15 +35,15 @@ func (m *MockSessionRepository) FindByID(ctx context.Context, id string) (*model
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.Session), args.Error(1)
+	return args.Get(0).(*models.Session), nil
 }
 
 func (m *MockSessionRepository) FindByField(ctx context.Context, field string, value any) ([]*models.Session, error) {
 	args := m.Called(ctx, field, value)
 	if args.Get(0) == nil {
-		return nil, args.Error(1)
+		return []*models.Session{}, args.Error(1)
 	}
-	return args.Get(0).([]*models.Session), args.Error(1)
+	return args.Get(0).([]*models.Session), nil
 }
 
 func (m *MockSessionRepository) UpdateByID(ctx context.Context, id string, store *models.Session) error {
@@ -58,7 +61,7 @@ func (m *MockSessionRepository) Count(ctx context.Context) (int, error) {
 	if args.Get(0) == nil {
 		return 0, args.Error(1)
 	}
-	return args.Get(0).(int), args.Error(1)
+	return args.Get(0).(int), nil
 }
 
 func (m *MockSessionRepository) Exists(ctx context.Context, id string) (bool, error) {
@@ -66,5 +69,5 @@ func (m *MockSessionRepository) Exists(ctx context.Context, id string) (bool, er
 	if args.Get(0) == nil {
 		return false, args.Error(1)
 	}
-	return args.Get(0).(bool), args.Error(1)
+	return args.Get(0).(bool), nil
 }

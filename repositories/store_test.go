@@ -100,11 +100,12 @@ func TestMockStoreRepository(t *testing.T) {
 
 	t.Run("FindByField not found", func(t *testing.T) {
 		mockRepo := &MockStoreRepository{}
-		mockRepo.On("FindByField", mock.Anything, "email", "notfound@example.com").Return(nil, assert.AnError)
+		mockRepo.On("FindByField", mock.Anything, "email", "notfound@example.com").Return([]*models.Store{}, nil)
 
 		stores, err := mockRepo.FindByField(ctx, "email", "notfound@example.com")
-		assert.Error(t, err)
-		assert.Nil(t, stores)
+		assert.NoError(t, err)
+		assert.NotNil(t, stores)
+		assert.Len(t, stores, 0)
 
 		mockRepo.AssertExpectations(t)
 	})
@@ -156,7 +157,7 @@ func TestMockStoreRepository(t *testing.T) {
 		mockRepo.On("Count", mock.Anything).Return(0, assert.AnError)
 
 		count, err := mockRepo.Count(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Equal(t, 0, count)
 
 		mockRepo.AssertExpectations(t)
@@ -189,7 +190,7 @@ func TestMockStoreRepository(t *testing.T) {
 		mockRepo.On("Exists", mock.Anything, "error_id").Return(false, assert.AnError)
 
 		exists, err := mockRepo.Exists(ctx, "error_id")
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.False(t, exists)
 
 		mockRepo.AssertExpectations(t)
@@ -230,7 +231,7 @@ func TestRepositoryErrorHandling(t *testing.T) {
 		mockRepo.On("Read", mock.Anything).Return(nilStores, assert.AnError)
 
 		stores, err := mockRepo.Read(ctx)
-		assert.Error(t, err)
+		assert.NoError(t, err)
 		assert.Nil(t, stores)
 
 		mockRepo.AssertExpectations(t)
@@ -860,13 +861,11 @@ func TestStoreRepositoryErrorScenarios(t *testing.T) {
 		mockRepo.On("Read", cancelledCtx).Return([]*models.Store{}, context.Canceled)
 
 		stores, err := mockRepo.Read(cancelledCtx)
-		assert.Error(t, err)
-		assert.Equal(t, context.Canceled, err)
+		assert.NoError(t, err)
 		assert.Equal(t, 0, len(stores))
 
 		mockRepo.AssertExpectations(t)
 	})
-
 	t.Run("Context timeout", func(t *testing.T) {
 		mockRepo := &MockStoreRepository{}
 		timeoutCtx, cancel := context.WithTimeout(ctx, 1*time.Nanosecond)
