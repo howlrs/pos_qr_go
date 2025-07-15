@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"backend/models"
-	"backend/repositories"
 	"context"
 	"fmt"
 )
@@ -15,24 +14,21 @@ func (u *UseCase) RegisterStore(ctx context.Context, name, email, password, addr
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// レポジトリ層の初期化
-	if err := repositories.NewStoreRepository(u.db).Create(ctx, store); err != nil {
+	// レポジトリ層を使用
+	if err := u.storeRepo.Create(ctx, store); err != nil {
 		return nil, fmt.Errorf("failed to create store: %w", err)
 	}
-
 	return store, nil
 }
 
 func (u *UseCase) GetStore(ctx context.Context, id string) (*models.Store, error) {
-	// レポジトリ層の初期化
-	return repositories.NewStoreRepository(u.db).FindByID(ctx, id)
+	// レポジトリ層を使用
+	return u.storeRepo.FindByID(ctx, id)
 }
 
 func (u *UseCase) GetAllStores(ctx context.Context) ([]*models.Store, error) {
-	// レポジトリ層の初期化
-	repo := repositories.NewStoreRepository(u.db)
-
-	stores, err := repo.Read(ctx)
+	// レポジトリ層を使用
+	stores, err := u.storeRepo.Read(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,9 +51,9 @@ func (u *UseCase) Update(ctx context.Context, id, name, email, password, address
 		}
 	}
 
-	return repositories.NewStoreRepository(u.db).UpdateByID(ctx, store.ID, store)
+	return u.storeRepo.UpdateByID(ctx, store.ID, store)
 }
 
 func (u *UseCase) Delete(ctx context.Context, id string) error {
-	return repositories.NewStoreRepository(u.db).DeleteByID(ctx, id)
+	return u.storeRepo.DeleteByID(ctx, id)
 }

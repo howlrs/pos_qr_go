@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"backend/models"
-	"backend/repositories"
 	"context"
 )
 
@@ -15,11 +14,11 @@ func (u *UseCase) ManagerSignUp(ctx context.Context, email, password string) err
 		return err
 	}
 
-	return repositories.NewManagerRepository(u.db).Create(ctx, manager)
+	return u.managerRepo.Create(ctx, manager)
 }
 
 func (u *UseCase) ManagerSignIn(ctx context.Context, email, password string) error {
-	gotUser, err := repositories.NewManagerRepository(u.db).FindByID(ctx, email)
+	gotUser, err := u.managerRepo.FindByID(ctx, email)
 	if err != nil {
 		return err
 	}
