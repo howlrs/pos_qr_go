@@ -16,7 +16,9 @@ type SessionRepository struct {
 
 // NewSessionRepository は新しいSessionRepositoryを生成します。
 func NewSessionRepository(client *firestore.Client) Repository[models.Session] {
-
+	if client == nil {
+		return NewMockSessionRepository()
+	}
 	return &SessionRepository{
 		client:     client,
 		collection: "sessions",

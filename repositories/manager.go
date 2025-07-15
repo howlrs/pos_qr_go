@@ -19,6 +19,9 @@ type ManagerRepository struct {
 
 // NewManagerRepository は新しい ManagerRepository のインスタンスを生成します。
 func NewManagerRepository(client *firestore.Client) Repository[models.Manager] {
+	if client == nil {
+		return NewMockManagerRepository()
+	}
 	return &ManagerRepository{
 		client:     client,
 		collection: "managers",

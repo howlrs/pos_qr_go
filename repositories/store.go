@@ -79,7 +79,7 @@ func (r *StoreRepository) Create(ctx context.Context, store *models.Store) error
 func (r *StoreRepository) Read(ctx context.Context) ([]*models.Store, error) {
 	docs, err := r.client.Collection(GetCollectionName(r.collection)).Documents(ctx).GetAll()
 	if err != nil {
-		return nil, err
+		return []*models.Store{}, err
 	}
 
 	if len(docs) == 0 {
@@ -90,7 +90,7 @@ func (r *StoreRepository) Read(ctx context.Context) ([]*models.Store, error) {
 	for i, doc := range docs {
 		store := &Store{}
 		if err := doc.DataTo(store); err != nil {
-			return nil, err
+			return []*models.Store{}, err
 		}
 		stores[i] = store.ToModel()
 	}
@@ -117,7 +117,7 @@ func (r *StoreRepository) FindByID(ctx context.Context, id string) (*models.Stor
 func (r *StoreRepository) FindByField(ctx context.Context, field string, value any) ([]*models.Store, error) {
 	docs, err := r.client.Collection(GetCollectionName(r.collection)).Where(field, "==", value).Documents(ctx).GetAll()
 	if err != nil {
-		return nil, err
+		return []*models.Store{}, err
 	}
 
 	if len(docs) == 0 {
@@ -128,7 +128,7 @@ func (r *StoreRepository) FindByField(ctx context.Context, field string, value a
 	for i, doc := range docs {
 		store := &Store{}
 		if err := doc.DataTo(store); err != nil {
-			return nil, err
+			return []*models.Store{}, err
 		}
 		stores[i] = store.ToModel()
 	}

@@ -16,7 +16,10 @@ type SeatRepository struct {
 }
 
 // NewSeatRepository は新しい SeatRepository のインスタンスを生成します。
-func NewSeatRepository(client *firestore.Client) *SeatRepository {
+func NewSeatRepository(client *firestore.Client) Repository[models.Seat] {
+	if client == nil {
+		return NewMockSeatRepository()
+	}
 	return &SeatRepository{
 		client:     client,
 		collection: "seats",
