@@ -70,29 +70,131 @@ POS QRシステムのフロントエンド開発において、以下の3つの�
 
 ## 🔄 開発ワークフロー
 
-### 1. タスク実行プロセス
+### 1. GitHub Issue駆動開発プロセス
 
 ```
 1. DEVELOPMENT_PROGRESS.md でタスク確認
-2. 関連ドキュメント参照 (FILE_STRUCTURE.md等)
-3. 実装作業実行
-4. 品質チェック (型チェック、リント)
-5. 進捗ファイル更新
-6. 次タスクへ移行
+2. GitHub Issue作成 (gh issue create)
+3. 機能ブランチ作成 (git checkout -b feature/xxx)
+4. 関連ドキュメント参照 (FILE_STRUCTURE.md等)
+5. 実装作業実行
+6. 品質チェック (型チェック、リント、ビルド)
+7. 変更をコミット (git commit)
+8. ブランチをプッシュ (git push -u origin feature/xxx)
+9. Pull Request作成 (gh pr create)
+10. 進捗ファイル更新
+11. Issue/PR管理・マージ
+12. 次タスクへ移行
 ```
 
-### 2. 品質管理
+### 2. Git/GitHub活用手順
+
+#### Issue作成
+```bash
+# 新しいIssueを作成
+gh issue create --title "Phase X: 機能名" --body "詳細説明" --assignee @me
+
+# Issue一覧確認
+gh issue list --state all
+```
+
+#### ブランチ管理
+```bash
+# 機能ブランチ作成・切り替え
+git checkout -b feature/phase-x-feature-name
+
+# 変更をステージング・コミット
+git add .
+git commit -m "feat: 機能実装
+
+詳細説明
+
+🤖 Generated with [opencode](https://opencode.ai)
+
+Co-Authored-By: opencode <noreply@opencode.ai>"
+
+# ブランチをプッシュ
+git push -u origin feature/phase-x-feature-name
+```
+
+#### Pull Request管理
+```bash
+# PR作成
+gh pr create --title "🎉 Phase X完了: 機能名" --body "実装内容詳細" --assignee @me
+
+# PR一覧確認
+gh pr list --state all
+
+# PRマージ (レビュー後)
+gh pr merge --squash --delete-branch
+```
+
+#### 進捗確認
+```bash
+# Git履歴確認
+git log --oneline -10
+
+# ブランチ状況確認
+git branch -a
+
+# 現在の状況確認
+git status
+```
+
+### 3. 品質管理
 
 - **コード品質**: ESLint + Prettier による自動チェック
 - **型安全性**: TypeScript strict mode
-- **テスト**: Jest + Testing Library
+- **ビルドテスト**: プロダクションビルド成功確認
+- **テスト**: Jest + Testing Library (Phase 6で実装)
 - **パフォーマンス**: Lighthouse監査
 
-### 3. ファイル管理
+### 4. ファイル管理
 
 - **進捗管理**: DEVELOPMENT_PROGRESS.md で一元管理
 - **構造参照**: FILE_STRUCTURE.md で配置確認
 - **役務確認**: DEVELOPMENT_ROLES.md で責務確認
+- **完了記録**: DEVELOPMENT_PROGRESS_PHASE*_COMPLETE.md でフェーズ別記録
+
+### 5. Issue/PR命名規則
+
+#### Issue命名
+```
+Phase X: 機能名実装
+例: Phase 2: 認証システム実装
+例: Phase 3-4: 管理者・店舗管理システム実装
+```
+
+#### PR命名
+```
+🎉 Phase X完了: 機能名実装
+例: 🎉 Phase 2完了: 認証システム実装
+例: 🎉 Phase 3-4完了: 管理者・店舗管理システム実装
+```
+
+#### ブランチ命名
+```
+feature/phase-x-feature-name
+例: feature/phase2-auth-system
+例: feature/phase3-4-management-systems
+```
+
+#### コミットメッセージ
+```
+feat: Phase X完了 - 機能名実装
+
+## 実装内容
+- 機能1
+- 機能2
+
+## 技術的成果
+- 成果1
+- 成果2
+
+🤖 Generated with [opencode](https://opencode.ai)
+
+Co-Authored-By: opencode <noreply@opencode.ai>
+```
 
 ## 🎨 UI/UX ガイドライン
 
