@@ -1,20 +1,6 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-
-import { QueryProvider } from '@/store';
-import { ErrorBoundary } from '@/components';
 import './globals.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'POS QR System',
@@ -27,15 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='ja'>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ErrorBoundary>
-          <QueryProvider>
-            <AntdRegistry>{children}</AntdRegistry>
-          </QueryProvider>
-        </ErrorBoundary>
+    <html lang="ja">
+      <body>
+        <AntdRegistry>
+          {children}
+        </AntdRegistry>
       </body>
     </html>
   );
