@@ -6,6 +6,7 @@ export * from './auth/usePermissions';
 export * from './api/useStores';
 export * from './api/useManagers';
 export * from './api/useSeats';
+export * from './api/useOrders';
 
 // UI Hooks
 export * from './ui/useResponsive';
