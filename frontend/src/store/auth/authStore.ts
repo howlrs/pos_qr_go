@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { getAuthToken, setAuthToken, clearAuthToken } from '@/lib/api';
+import { jwt } from '@/lib/auth/jwt';
 
 // Auth user types
 export interface AuthUser {
@@ -18,22 +19,28 @@ export interface AuthState {
   // State
   user: AuthUser | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  tokenExpiresAt: number | null;
 
   // Actions
-  login: (token: string, user: AuthUser) => void;
+  login: (token: string, user: AuthUser, refreshToken?: string) => void;
   logout: () => void;
   setUser: (user: AuthUser) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+  updateTokens: (token: string, refreshToken?: string) => void;
   
   // Utilities
   hasPermission: (permission: string) => boolean;
   isAdmin: () => boolean;
   isStore: () => boolean;
+  isTokenExpired: () => boolean;
+  willTokenExpireSoon: (minutes?: number) => boolean;
+  validateSession: () => boolean;
 }
 
 // Create auth store
@@ -43,18 +50,24 @@ export const useAuthStore = create<AuthState>()(
       // Initial state
       user: null,
       token: null,
+      refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      tokenExpiresAt: null,
 
       // Actions
-      login: (token: string, user: AuthUser) => {
+      login: (token: string, user: AuthUser, refreshToken?: string) => {
         setAuthToken(token);
+        const expirationTime = jwt.getExpirationTime(token);
+        
         set({
           token,
           user,
+          refreshToken,
           isAuthenticated: true,
           error: null,
+          tokenExpiresAt: expirationTime,
         });
       },
 
@@ -63,8 +76,10 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: null,
           token: null,
+          refreshToken: null,
           isAuthenticated: false,
           error: null,
+          tokenExpiresAt: null,
         });
       },
 
@@ -84,6 +99,18 @@ export const useAuthStore = create<AuthState>()(
         set({ error: null });
       },
 
+      updateTokens: (token: string, refreshToken?: string) => {
+        setAuthToken(token);
+        const expirationTime = jwt.getExpirationTime(token);
+        
+        set({
+          token,
+          refreshToken: refreshToken || get().refreshToken,
+          tokenExpiresAt: expirationTime,
+          error: null,
+        });
+      },
+
       // Utilities
       hasPermission: (permission: string): boolean => {
         const { user } = get();
@@ -99,6 +126,34 @@ export const useAuthStore = create<AuthState>()(
         const { user } = get();
         return user?.role === 'store';
       },
+
+      isTokenExpired: (): boolean => {
+        const { token } = get();
+        if (!token) return true;
+        return jwt.isExpired(token);
+      },
+
+      willTokenExpireSoon: (minutes: number = 5): boolean => {
+        const { token } = get();
+        if (!token) return true;
+        return jwt.willExpireSoon(token, minutes);
+      },
+
+      validateSession: (): boolean => {
+        const { token, user, isAuthenticated } = get();
+        
+        if (!isAuthenticated || !token || !user) {
+          return false;
+        }
+
+        if (jwt.isExpired(token)) {
+          // Token is expired, logout
+          get().logout();
+          return false;
+        }
+
+        return true;
+      },
     }),
     {
       name: 'pos-qr-auth',
@@ -106,12 +161,19 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
+        tokenExpiresAt: state.tokenExpiresAt,
       }),
       onRehydrateStorage: () => (state) => {
-        // Sync token with localStorage on rehydration
+        // Validate session on rehydration
         if (state?.token) {
-          setAuthToken(state.token);
+          if (jwt.isValid(state.token)) {
+            setAuthToken(state.token);
+          } else {
+            // Token is invalid, clear auth state
+            state.logout();
+          }
         }
       },
     }

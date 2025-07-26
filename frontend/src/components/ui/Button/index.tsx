@@ -2,7 +2,7 @@ import React from 'react';
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
 
 export interface ButtonProps extends Omit<AntButtonProps, 'variant'> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'link';
   fullWidth?: boolean;
 }
 
@@ -22,6 +22,8 @@ export const Button: React.FC<ButtonProps> = ({
         return 'primary';
       case 'ghost':
         return 'text';
+      case 'link':
+        return 'link';
       default:
         return 'primary';
     }

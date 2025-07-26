@@ -6,3 +6,6 @@ export * from './api';
 
 // Auth utilities
 export * from './auth';
+
+// Utilities
+export * from './utils';

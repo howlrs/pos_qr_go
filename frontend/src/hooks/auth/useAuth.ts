@@ -147,9 +147,21 @@ export const useAuth = () => {
     },
   });
 
+  // Unified login function
+  const login = async (credentials: (AdminLoginRequest & { role: 'admin' }) | (StoreLoginRequest & { role: 'store' })) => {
+    if (credentials.role === 'admin') {
+      return adminLogin.mutateAsync(credentials);
+    } else {
+      return storeLogin.mutateAsync(credentials);
+    }
+  };
+
   return {
     // State
     ...authStore,
+    
+    // Unified login
+    login,
     
     // Mutations
     adminLogin: {

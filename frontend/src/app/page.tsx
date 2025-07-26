@@ -100,10 +100,18 @@ export default function Home() {
             </Button>
 
             <Space>
-              <Button variant='primary' size='large'>
+              <Button 
+                variant='primary' 
+                size='large'
+                onClick={() => window.location.href = '/auth/admin-login'}
+              >
                 管理者ログイン
               </Button>
-              <Button variant='secondary' size='large'>
+              <Button 
+                variant='secondary' 
+                size='large'
+                onClick={() => window.location.href = '/auth/store-login'}
+              >
                 店舗ログイン
               </Button>
             </Space>

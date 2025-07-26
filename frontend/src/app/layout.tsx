@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 
 import { QueryProvider } from '@/store';
+import { ErrorBoundary } from '@/components';
 import './globals.css';
 
 const geistSans = Geist({
@@ -30,9 +31,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryProvider>
-          <AntdRegistry>{children}</AntdRegistry>
-        </QueryProvider>
+        <ErrorBoundary>
+          <QueryProvider>
+            <AntdRegistry>{children}</AntdRegistry>
+          </QueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
