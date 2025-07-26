@@ -1,7 +1,7 @@
 import { ButtonProps as AntButtonProps } from 'antd';
 
 export interface ButtonProps extends Omit<AntButtonProps, 'variant'> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'link';
   fullWidth?: boolean;
 }
 
