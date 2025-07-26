@@ -9,13 +9,13 @@
 - [x] **1.1.1** Next.js + TypeScript + Ant Design 依存関係インストール ✅
 - [x] **1.1.2** ESLint/Prettier 設定とコード品質ツール設定 ✅
 - [x] **1.1.3** 環境変数設定 (.env.local) とAPI設定 ✅ [Issue #1, PR #2]
-- [ ] **1.1.4** 基本ディレクトリ構造作成 (components, hooks, lib, store, types)
+- [x] **1.1.4** 基本ディレクトリ構造作成 (components, hooks, lib, store, types) ✅ [Issue #3, PR #4]
 
 #### 1.2 共通基盤実装
 
-- [ ] **1.2.1** API クライアント設定 (Axios + インターセプター)
-- [ ] **1.2.2** React Query + Zustand 状態管理設定
-- [ ] **1.2.3** JWT認証システム基盤実装
+- [x] **1.2.1** API クライアント設定 (Axios + インターセプター) ✅ [Issue #1, PR #2]
+- [x] **1.2.2** React Query + Zustand 状態管理設定 ✅ [Issue #3, PR #4]
+- [x] **1.2.3** JWT認証システム基盤実装 ✅ [Issue #3, PR #4]
 - [ ] **1.2.4** エラーハンドリング機構とローディング状態管理
 
 #### 1.3 レイアウトシステム構築
@@ -65,8 +65,8 @@
 
 - **開始日**: 2025-07-27
 - **現在フェーズ**: Phase 1.1 - 環境セットアップ
-- **完了タスク**: 3/37
-- **進捗率**: 8.1%
+- **完了タスク**: 6/37
+- **進捗率**: 16.2%
 
 ## 📝 作業ログ
 
@@ -95,16 +95,26 @@
   - エラーハンドリング機構構築
   - API エンドポイント定義
   - 開発用API接続テスト機能追加
+- **1.1.4 + 1.2.1-1.2.3 完了**: 基本構造とReact Query + Zustand状態管理 [Issue #3, PR #4]
+  - 完全なディレクトリ構造構築 (components, hooks, store, types, lib)
+  - React Query プロバイダー設定 (DevTools統合)
+  - Zustand認証ストア実装 (永続化対応)
+  - Zustand UIストア実装 (テーマ・モーダル・ローディング)
+  - JWT認証システム完全実装 (decode, validate, guards)
+  - 認証フック実装 (login, logout, refresh)
+  - カスタムUIコンポーネント (Button, Card)
+  - TypeScript型定義完備 (User, Store models)
 
 ## 🎯 次のアクション
 
-**現在作業中**: タスク 1.1.4 - 基本ディレクトリ構造作成
+**現在作業中**: タスク 1.2.4 - エラーハンドリング機構とローディング状態管理
 
 ## 🔄 GitHub連携状況
 - **Repository**: https://github.com/howlrs/pos_qr_go
-- **Current Branch**: feature/env-api-setup
-- **Open Issues**: 1 (完了済み)
-- **Open PRs**: 1 (#2 - 環境変数設定とAPI基盤構築)
+- **Current Branch**: feature/directory-structure-state-management
+- **Completed Issues**: 2 (#1 ✅, #3 ✅)
+- **Open Issues**: 0
+- **Open PRs**: 1 (#4 - 基本構造とReact Query + Zustand状態管理)
 
 ## 📋 品質基準
 
