@@ -1,1 +1,2 @@
-// Hooks will be exported here as they are created
+// Auth Hooks
+export * from './auth/useAuth';
