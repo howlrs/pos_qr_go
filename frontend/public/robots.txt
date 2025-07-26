@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Disallow admin and auth pages
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+
+# Allow order pages (public access via QR codes)
+Allow: /order/
