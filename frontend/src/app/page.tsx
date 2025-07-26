@@ -1,14 +1,26 @@
 'use client';
 
-import { Button, Card, Typography, Space, message } from 'antd';
-import { CheckCircleOutlined, ApiOutlined } from '@ant-design/icons';
+import { Typography, Space, message } from 'antd';
+import { CheckCircleOutlined, ApiOutlined, SettingOutlined } from '@ant-design/icons';
 
 import { env } from '@/lib/config/env';
 import { api, API_ENDPOINTS } from '@/lib/api';
+import { Button, Card } from '@/components';
+import { useUIStore, useAuthStore } from '@/store';
 
 const { Title, Paragraph, Text } = Typography;
 
 export default function Home() {
+  const { theme, toggleTheme } = useUIStore((state) => ({
+    theme: state.theme,
+    toggleTheme: state.toggleTheme,
+  }));
+  
+  const { user, isAuthenticated } = useAuthStore((state) => ({
+    user: state.user,
+    isAuthenticated: state.isAuthenticated,
+  }));
+
   const testApiConnection = async () => {
     try {
       message.loading('API接続テスト中...', 0);
@@ -39,10 +51,10 @@ export default function Home() {
           <Paragraph>
             フロントエンド基盤構築が完了しました。
             <br />
-            環境変数とAPI設定が正常に動作しています。
+            React Query + Zustand 状態管理システムが動作中です。
           </Paragraph>
 
-          <Card size='small' className='text-left'>
+          <Card shadow='small' padding='small' className='text-left'>
             <Text strong>環境設定:</Text>
             <br />
             <Text code>API_URL: {env.API_URL}</Text>
@@ -51,25 +63,49 @@ export default function Home() {
             <br />
             <Text code>ENVIRONMENT: {env.ENVIRONMENT}</Text>
             <br />
-            <Text code>DEBUG: {env.DEBUG.toString()}</Text>
+            <Text code>THEME: {theme}</Text>
           </Card>
+
+          {isAuthenticated && user && (
+            <Card shadow='small' padding='small' className='text-left'>
+              <Text strong>認証状態:</Text>
+              <br />
+              <Text code>USER: {user.name}</Text>
+              <br />
+              <Text code>ROLE: {user.role}</Text>
+              <br />
+              <Text code>EMAIL: {user.email}</Text>
+            </Card>
+          )}
 
           <Space direction='vertical' className='w-full'>
             <Button
-              type='primary'
+              variant='primary'
               size='large'
               icon={<ApiOutlined />}
               onClick={testApiConnection}
-              block
+              fullWidth
             >
               API接続テスト
             </Button>
 
+            <Button
+              variant='secondary'
+              size='large'
+              icon={<SettingOutlined />}
+              onClick={toggleTheme}
+              fullWidth
+            >
+              テーマ切り替え ({theme})
+            </Button>
+
             <Space>
-              <Button type='primary' size='large'>
+              <Button variant='primary' size='large'>
                 管理者ログイン
               </Button>
-              <Button size='large'>店舗ログイン</Button>
+              <Button variant='secondary' size='large'>
+                店舗ログイン
+              </Button>
             </Space>
           </Space>
         </Space>
